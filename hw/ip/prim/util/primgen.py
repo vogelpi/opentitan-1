@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import sys
+sys.setrecursionlimit(1500)
 
 import yaml
 from mako.template import Template

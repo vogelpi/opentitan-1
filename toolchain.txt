@@ -10,14 +10,14 @@
 #       reasons, and will eventually be removed.
 
 [binaries]
-c = '/tools/riscv/bin/riscv32-unknown-elf-gcc'
-cpp = '/tools/riscv/bin/riscv32-unknown-elf-g++'
-ar = '/tools/riscv/bin/riscv32-unknown-elf-ar'
-ld = '/tools/riscv/bin/riscv32-unknown-elf-ld'
-objdump = '/tools/riscv/bin/riscv32-unknown-elf-objdump'
-objcopy = '/tools/riscv/bin/riscv32-unknown-elf-objcopy'
-strip = '/tools/riscv/bin/riscv32-unknown-elf-strip'
-as = '/tools/riscv/bin/riscv32-unknown-elf-as'
+c = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-gcc'
+cpp = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-g++'
+ar = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-ar'
+ld = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-ld'
+objdump = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-objdump'
+objcopy = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-objcopy'
+strip = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-strip'
+as = '/scratch/vogelpi/tools/riscv/bin/riscv32-unknown-elf-as'
 
 [properties]
 has_function_printf = false

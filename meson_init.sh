@@ -54,7 +54,8 @@ Usage: $0 [-r|-f|-A|-K|-T|-t]
 USAGE
 }
 
-readonly DEFAULT_RISCV_TOOLS=/tools/riscv
+#readonly DEFAULT_RISCV_TOOLS=/tools/riscv
+readonly DEFAULT_RISCV_TOOLS=${RISCV_TOOLCHAIN}
 TOOLCHAIN_PATH="${TOOLCHAIN_PATH:-$DEFAULT_RISCV_TOOLS}"
 
 FLAGS_assert=false

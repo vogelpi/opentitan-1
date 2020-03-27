@@ -5,7 +5,7 @@
 BORING_SSL_PATH=../boringssl
 
 NAME=aes_example aes_modes
-FLAGS=-Wall -O2 -g
+FLAGS=-Wall -O2 -g -std=c11
 
 ifneq ($(wildcard $(BORING_SSL_PATH)/build/crypto/libcrypto.a),)
 	FLAGS+=-DUSE_BORING_SSL
