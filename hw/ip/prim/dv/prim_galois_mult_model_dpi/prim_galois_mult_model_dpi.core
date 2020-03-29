@@ -1,0 +1,25 @@
+CAPI=2:
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+name: "lowrisc:dv:prim_galois_mult_model_dpi"
+description: "Galois multiplier DPI"
+filesets:
+  files_dv:
+    files:
+      - prim_galois_mult_model_dpi.c: { file_type: cSource }
+      - prim_galois_mult_model_dpi.h: { file_type: cSource, is_include_file: true }
+      - prim_galois_mult_model_dpi_pkg.sv: { file_type: systemVerilogSource }
+      - ./prim_galois_mult_model_dpi.py : { copyto: prim_galois_mult_model_dpi.py }
+
+targets:
+  default:
+    filesets:
+      - files_dv
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+# compiler flags
+          - '-CFLAGS "-I/usr/include/python3.6m"'
+          - '-LDFLAGS "-lpython3.6m"'
