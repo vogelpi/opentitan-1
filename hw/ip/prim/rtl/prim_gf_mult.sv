@@ -43,10 +43,10 @@ module prim_gf_mult #(
 ) (
   input clk_i,
   input rst_ni,
-  input start_i,
+  input req_i,
   input [Width-1:0] operand_a_i,
   input [Width-1:0] operand_b_i,
-  output logic done_o,
+  output logic ack_o,
   output logic [Width-1:0] prod_o
 );
 
@@ -86,7 +86,7 @@ module prim_gf_mult #(
 
   if (StagesPerCycle == Width) begin : gen_all_combo
 
-    assign done_o = 1'b1;
+    assign ack_o = 1'b1;
     assign cnt = '0;
     assign prod_q = '0;
     assign vector = '0;
@@ -94,15 +94,15 @@ module prim_gf_mult #(
   end else begin : gen_decomposed
 
     // multiply is done
-    assign done_o = cnt == (Loops - 1);
+    assign ack_o = cnt == (Loops - 1);
 
     // advance the stage count and also advance the bit position count
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         cnt <= '0;
-      end else if (start_i && done_o) begin
+      end else if (req_i && ack_o) begin
         cnt <= '0;
-      end else if (start_i && cnt < (Loops - 1)) begin
+      end else if (req_i && cnt < (Loops - 1)) begin
         cnt <= cnt + 1'b1;
       end
     end
@@ -111,10 +111,10 @@ module prim_gf_mult #(
       if (!rst_ni) begin
         prod_q <= '0;
         vector <= '0;
-      end else if (done_o) begin
+      end else if (ack_o) begin
         prod_q <= '0;
         vector <= '0;
-      end else if (start_i) begin
+      end else if (req_i) begin
         prod_q <= prod_d;
         vector <= matrix[StagesPerCycle-1];
       end
@@ -126,7 +126,7 @@ module prim_gf_mult #(
   assign prod_d = prod_q ^ gf_mult(matrix, op_i_slice);
 
   // The output is not toggled until it is ready
-  assign prod_o = done_o ? prod_d : operand_a_i;
+  assign prod_o = ack_o ? prod_d : operand_a_i;
 
 
   // GF(2^Width) * x
