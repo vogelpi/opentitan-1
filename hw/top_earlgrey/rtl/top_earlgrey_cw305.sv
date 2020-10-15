@@ -237,8 +237,8 @@ module top_earlgrey_cw305 #(
   // for verilator purposes, make these two the same.
   assign ast_base_rst.aon_pok      = rst_n;
   top_earlgrey #(
-    .AesMasking(1'b0),
-    .AesSBoxImpl(aes_pkg::SBoxImplLut),
+    .AesMasking(1'b1),
+    .AesSBoxImpl(aes_pkg::SBoxImplCanrightMasked),
     .SecAesStartTriggerDelay(40),
     .SecAesAllowForcingMasks(1'b1),
     .IbexRegFile(ibex_pkg::RegFileFPGA),
