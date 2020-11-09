@@ -58,7 +58,7 @@ for impl_dut in impl_list:
     # Prepare Verilog conversion of DUT
     sv2v_cmd = [
         'sv2v', rtl_path + impl_dut + '.sv', rtl_path + file_pkg,
-        rtl_path + file_pkg_canright
+        rtl_path + file_pkg_canright, '-I', '../../../prim/rtl/'
     ]
 
     # Masked implementations require a wrapper

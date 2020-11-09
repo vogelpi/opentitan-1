@@ -21,6 +21,8 @@
 // heavily optimize the design. The result is likely insecure. Use with care.                    //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+`include "prim_assert.sv"
+
 // Masked inverse in GF(2^4), using normal basis [z^4, z]
 // (see Formulas 6, 13, 14, 15, 21, 22, 23, 24 in the paper)
 module aes_masked_inverse_gf2p4 (
@@ -249,21 +251,50 @@ module aes_sbox_canright_masked (
   // Masked Canright SBox //
   //////////////////////////
 
-  logic [7:0] in_data_basis_x, out_data_basis_x;
-  logic [7:0] in_mask_basis_x, out_mask_basis_x;
+  (* keep = "true" *) logic [7:0] in_data_basis_x, out_data_basis_x;
+  (* keep = "true" *) logic [7:0] in_mask_basis_x, out_mask_basis_x;
+
+  // With the use of `unique case` constructs, we can make sure the synthesis tool
+  // indeed instantiates muxes.
+  logic [7:0] in_data_fwd, in_data_inv, out_data_fwd, out_data_inv;
+  logic [7:0] in_mask_fwd, in_mask_inv, out_mask_fwd, out_mask_inv;
 
   // Convert data to normal basis X.
-  assign in_data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) :
-                                                aes_mvm(data_i ^ 8'h63, S2X);
+  assign in_data_fwd = aes_mvm(data_i, A2X);
+  assign in_data_inv = aes_mvm(data_i ^ 8'h63, S2X);
+
+  always_comb begin : in_data_mux
+    unique case (op_i)
+      CIPH_FWD: in_data_basis_x = in_data_fwd;
+      CIPH_INV: in_data_basis_x = in_data_inv;
+      default:  in_data_basis_x = in_data_fwd;
+    endcase
+  end
 
   // Convert masks to normal basis X.
   // The addition of constant 8'h63 following the affine transformation is skipped.
-  assign in_mask_basis_x  = (op_i == CIPH_FWD) ? aes_mvm(in_mask_i, A2X) :
-                                                 aes_mvm(in_mask_i, S2X);
+  assign in_mask_fwd = aes_mvm(in_mask_i, A2X);
+  assign in_mask_inv = aes_mvm(in_mask_i, S2X);
+
+  always_comb begin : in_mask_mux
+    unique case (op_i)
+      CIPH_FWD: in_mask_basis_x = in_mask_fwd;
+      CIPH_INV: in_mask_basis_x = in_mask_inv;
+      default:  in_mask_basis_x = in_mask_fwd;
+    endcase
+  end
 
   // The output mask is converted in the opposite direction.
-  assign out_mask_basis_x = (op_i == CIPH_INV) ? aes_mvm(out_mask_i, A2X) :
-                                                 aes_mvm(out_mask_i, S2X);
+  assign out_mask_fwd = aes_mvm(out_mask_i, S2X);
+  assign out_mask_inv = aes_mvm(out_mask_i, A2X);
+
+  always_comb begin : out_mask_mux
+    unique case (op_i)
+      CIPH_FWD: out_mask_basis_x = out_mask_fwd;
+      CIPH_INV: out_mask_basis_x = out_mask_inv;
+      default:  out_mask_basis_x = out_mask_fwd;
+    endcase
+  end
 
   // Do the inversion in normal basis X.
   aes_masked_inverse_gf2p8 aes_masked_inverse_gf2p8 (
@@ -274,7 +305,22 @@ module aes_sbox_canright_masked (
   );
 
   // Convert to basis S or A.
-  assign data_o = (op_i == CIPH_FWD) ? (aes_mvm(out_data_basis_x, X2S) ^ 8'h63) :
-                                       (aes_mvm(out_data_basis_x, X2A));
+  assign out_data_fwd = aes_mvm(out_data_basis_x, X2S) ^ 8'h63;
+  assign out_data_inv = aes_mvm(out_data_basis_x, X2A);
+
+  always_comb begin : out_data_mux
+    unique case (op_i)
+      CIPH_FWD: data_o = out_data_fwd;
+      CIPH_INV: data_o = out_data_inv;
+      default:  data_o = out_data_fwd;
+    endcase
+  end
+
+  ////////////////
+  // Assertions //
+  ////////////////
+
+  // Selectors must be known/valid
+  `ASSERT_KNOWN(AesCiphOpKnown, op_i)
 
 endmodule
