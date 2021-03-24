@@ -15,7 +15,7 @@ module top_earlgrey #(
   parameter pinmux_pkg::target_cfg_t PinmuxAonTargetCfg = pinmux_pkg::DefaultTargetCfg,
   parameter bit SramCtrlRetAonInstrExec = 1,
   parameter bit AesMasking = 1'b1,
-  parameter aes_pkg::sbox_impl_e AesSBoxImpl = aes_pkg::SBoxImplDom,
+  parameter aes_pkg::sbox_impl_e AesSBoxImpl = aes_pkg::SBoxImplCanrightMaskedNoreuse,
   parameter int unsigned SecAesStartTriggerDelay = 0,
   parameter bit SecAesAllowForcingMasks = 1'b0,
   parameter bit SecAesSkipPRNGReseeding = 1'b0,

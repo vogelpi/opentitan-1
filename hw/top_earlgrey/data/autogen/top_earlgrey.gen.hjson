@@ -3583,7 +3583,7 @@
           name: SBoxImpl
           desc: Selection of the S-Box implementation. See aes_pkg.sv.
           type: aes_pkg::sbox_impl_e
-          default: aes_pkg::SBoxImplDom
+          default: aes_pkg::SBoxImplCanrightMaskedNoreuse
           expose: "true"
           name_top: AesSBoxImpl
         }
@@ -3659,21 +3659,21 @@
           name: RndCnstMaskingLfsrSeed
           desc: Default seed of the PRNG used for masking.
           type: aes_pkg::masking_lfsr_seed_t
-          randcount: 160
+          randcount: 360
           randtype: data
           name_top: RndCnstAesMaskingLfsrSeed
-          default: 0xd6e49c544ba9dcdff0245e84d6f5f03ecaef7217
-          randwidth: 160
+          default: 0x8c93c933aa7733b0a12ca43bfd7e257220cd6a8bf51bed7db0d6e49c544ba9dcdff0245e84d6f5f03ecaef7217
+          randwidth: 360
         }
         {
           name: RndCnstMskgChunkLfsrPerm
           desc: Permutation applied to the LFSR chunks of the PRNG used for masking.
           type: aes_pkg::mskg_chunk_lfsr_perm_t
-          randcount: 32
+          randcount: 36
           randtype: perm
           name_top: RndCnstAesMskgChunkLfsrPerm
-          default: 0x46fa4bd6dc82beb0a4e30305aa371e9c64e2bf26
-          randwidth: 160
+          default: 0xa08541c67d84568dd4886d540e70524a2c030d5de4cf0c16446a2
+          randwidth: 216
         }
       ]
       inter_signal_list:
@@ -3935,7 +3935,7 @@
           randcount: 64
           randtype: data
           name_top: RndCnstKeymgrLfsrSeed
-          default: 0x8536e02c38ed5edf
+          default: 0x8ccec99f160326db
           randwidth: 64
         }
         {
@@ -3945,7 +3945,7 @@
           randcount: 64
           randtype: perm
           name_top: RndCnstKeymgrLfsrPerm
-          default: 0x6a27354364ad3bf532784c2725d903ee51f44fabb76f9fb3b2ff7145729959f821ae81803e317863c98b30854d042a6a
+          default: 0xcf870453f91542ef5274d2f1d8505388ef296fa988dc32651da3e7d2d60cb2af828d1ed7d6f2995b07e086bca81b901e
           randwidth: 384
         }
         {
@@ -3955,7 +3955,7 @@
           randcount: 32
           randtype: perm
           name_top: RndCnstKeymgrRandPerm
-          default: 0x239b10b10987253b015a36f15153fe5dcf92f46f
+          default: 0xa63904c7e8b7ae11c88e9e45b3754c5e8af054ed
           randwidth: 160
         }
         {
@@ -3965,7 +3965,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrRevisionSeed
-          default: 0xcb8bed0d3e48713de5986d0027d13a3a480b63b97279d8d378486795de27f2cf
+          default: 0x603c2154be52121d214556318c84c8ec175dab2f18800440bd414d266de08fc4
           randwidth: 256
         }
         {
@@ -3975,7 +3975,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrCreatorIdentitySeed
-          default: 0x8127b8ee31063c01e9be104c7777ecc6d68e333feddeac133f24dd2e11738ceb
+          default: 0x2144f3eefeedd9d57e3f829a880463a023ca0c5e653fadb4aee4626498a4c647
           randwidth: 256
         }
         {
@@ -3985,7 +3985,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrOwnerIntIdentitySeed
-          default: 0xfcc7cc4ec8d98b59e767a253b29311c3e284411ee572a3934ffe951d3b79c1b3
+          default: 0xc3b7d06751f2882df8f3259134067e7a112ffdb3d5c72146d889aca6973a1327
           randwidth: 256
         }
         {
@@ -3995,7 +3995,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrOwnerIdentitySeed
-          default: 0x18800440bd414d266de08fc479f858040892b0f3729f7ab9dafe7f2472fb41c8
+          default: 0x52213b7a034816103a781d0a4f5a0a911c1bcafe7663f6d1fbe7e4402c0329ca
           randwidth: 256
         }
         {
@@ -4005,7 +4005,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrSoftOutputSeed
-          default: 0x653fadb4aee4626498a4c647603c2154be52121d214556318c84c8ec175dab2f
+          default: 0xada112f1235ee7dba5042c13061068c02cef00b70bc5f1a88628458527616033
           randwidth: 256
         }
         {
@@ -4015,7 +4015,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrHardOutputSeed
-          default: 0xd5c72146d889aca6973a13272144f3eefeedd9d57e3f829a880463a023ca0c5e
+          default: 0x262a6e3ab1655d42b3090ae475a2df4171fdfd7c63dd2af7ca1c6ae78efcbdc6
           randwidth: 256
         }
         {
@@ -4025,7 +4025,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrAesSeed
-          default: 0x7663f6d1fbe7e4402c0329cac3b7d06751f2882df8f3259134067e7a112ffdb3
+          default: 0xa710b72b92e47f6e0845f450ead8f3095ff32c3256289223d7e05db35983fe5a
           randwidth: 256
         }
         {
@@ -4035,7 +4035,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrHmacSeed
-          default: 0xbc5f1a8862845852761603352213b7a034816103a781d0a4f5a0a911c1bcafe
+          default: 0x96ae771b3a1955e3d4549f3608232d03f93eed0fe9d1b1f891dcab64f5a52883
           randwidth: 256
         }
         {
@@ -4045,7 +4045,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrKmacSeed
-          default: 0x63dd2af7ca1c6ae78efcbdc6ada112f1235ee7dba5042c13061068c02cef00b7
+          default: 0x74487a86b6fee0311af608b7123f603c251a36ab2e658548c5420be549da272d
           randwidth: 256
         }
         {
@@ -4055,7 +4055,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstKeymgrNoneSeed
-          default: 0x56289223d7e05db35983fe5a262a6e3ab1655d42b3090ae475a2df4171fdfd7c
+          default: 0xa07db44fe8c330ca072829f9970f91074501568220e25ba7743095f2c1194fb
           randwidth: 256
         }
       ]
@@ -4574,7 +4574,7 @@
           randcount: 128
           randtype: data
           name_top: RndCnstSramCtrlMainSramKey
-          default: 0x92e47f6e0845f450ead8f3095ff32c32
+          default: 0x3ac42fa70cb942155264f8c121b7387a
           randwidth: 128
         }
         {
@@ -4584,7 +4584,7 @@
           randcount: 128
           randtype: data
           name_top: RndCnstSramCtrlMainSramNonce
-          default: 0xe9d1b1f891dcab64f5a52883a710b72b
+          default: 0x52f1c7741dd6e62190d79f1230d02f64
           randwidth: 128
         }
         {
@@ -4594,7 +4594,7 @@
           randcount: 32
           randtype: perm
           name_top: RndCnstSramCtrlMainSramLfsrPerm
-          default: 0x33d0bedd4d8c36cb029c0cfd5cb87f2170991f42
+          default: 0xa64e55df527bb916110187c69df7d66e260aa8c2
           randwidth: 160
         }
         {

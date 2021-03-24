@@ -152,7 +152,7 @@ module top_englishbreakfast_verilator (
   // Top-level design
   top_englishbreakfast #(
     .AesMasking(1'b1),
-    .AesSBoxImpl(aes_pkg::SBoxImplDom),
+    .AesSBoxImpl(aes_pkg::SBoxImplCanrightMaskedNoreuse),
     .SecAesStartTriggerDelay(40),
     .SecAesAllowForcingMasks(1'b1),
     .SecAesSkipPRNGReseeding(1'b1),
