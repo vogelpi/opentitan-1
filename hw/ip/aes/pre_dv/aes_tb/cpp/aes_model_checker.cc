@@ -43,10 +43,10 @@ int AESModelChecker::CheckModel() {
   int status = 0;
 
   // Update RTL state
-  MonitorSignals();
+  //MonitorSignals();
 
   // Update Model
-  UpdateModel();
+  //UpdateModel();
 
   // Visual comparison of RTL and model state
   if (DEBUG_LEVEL > 0) {
@@ -54,7 +54,7 @@ int AESModelChecker::CheckModel() {
   }
 
   // Compare Model vs. RTL
-  status = Compare();
+  //status = Compare();
 
   return status;
 }
