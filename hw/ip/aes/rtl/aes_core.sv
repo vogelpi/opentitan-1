@@ -382,50 +382,15 @@ module aes_core
   end
 
   // Cipher core
-  // aes_cipher_core #(
-  //   .AES192Enable             ( AES192Enable             ),
-  //   .Masking                  ( Masking                  ),
-  //   .SBoxImpl                 ( SBoxImpl                 ),
-  //   .SecAllowForcingMasks     ( SecAllowForcingMasks     ),
-  //   .SecSkipPRNGReseeding     ( SecSkipPRNGReseeding     ),
-  //   .RndCnstMaskingLfsrSeed   ( RndCnstMaskingLfsrSeed   ),
-  //   .RndCnstMskgChunkLfsrPerm ( RndCnstMskgChunkLfsrPerm )
-  // ) u_aes_cipher_core (
-  //   .clk_i              ( clk_i                      ),
-  //   .rst_ni             ( rst_ni                     ),
-
-  //   .in_valid_i         ( cipher_in_valid            ),
-  //   .in_ready_o         ( cipher_in_ready            ),
-
-  //   .out_valid_o        ( cipher_out_valid           ),
-  //   .out_ready_i        ( cipher_out_ready           ),
-
-  //   .cfg_valid_i        ( ~ctrl_err_storage          ), // Used for gating assertions only.
-  //   .op_i               ( cipher_op                  ),
-  //   .key_len_i          ( key_len_q                  ),
-  //   .crypt_i            ( cipher_crypt               ),
-  //   .crypt_o            ( cipher_crypt_busy          ),
-  //   .dec_key_gen_i      ( cipher_dec_key_gen         ),
-  //   .dec_key_gen_o      ( cipher_dec_key_gen_busy    ),
-  //   .key_clear_i        ( cipher_key_clear           ),
-  //   .key_clear_o        ( cipher_key_clear_busy      ),
-  //   .data_out_clear_i   ( cipher_data_out_clear      ),
-  //   .data_out_clear_o   ( cipher_data_out_clear_busy ),
-  //   .alert_o            ( cipher_alert               ),
-
-  //   .prd_clearing_i     ( cipher_prd_clearing        ),
-
-  //   .force_zero_masks_i ( force_zero_masks_q         ),
-  //   .data_in_mask_o     ( state_mask                 ),
-  //   .entropy_req_o      ( entropy_masking_req_o      ),
-  //   .entropy_ack_i      ( entropy_masking_ack_i      ),
-  //   .entropy_i          ( entropy_masking_i          ),
-
-  //   .state_init_i       ( state_init                 ),
-  //   .key_init_i         ( key_init_cipher            ),
-  //   .state_o            ( state_done                 )
-  // );
-  aes_cipher_core_syn u_aes_cipher_core (
+  aes_cipher_core #(
+    .AES192Enable             ( AES192Enable             ),
+    .Masking                  ( Masking                  ),
+    .SBoxImpl                 ( SBoxImpl                 ),
+    .SecAllowForcingMasks     ( SecAllowForcingMasks     ),
+    .SecSkipPRNGReseeding     ( SecSkipPRNGReseeding     ),
+    .RndCnstMaskingLfsrSeed   ( RndCnstMaskingLfsrSeed   ),
+    .RndCnstMskgChunkLfsrPerm ( RndCnstMskgChunkLfsrPerm )
+  ) u_aes_cipher_core (
     .clk_i              ( clk_i                      ),
     .rst_ni             ( rst_ni                     ),
 
@@ -448,7 +413,7 @@ module aes_core
     .data_out_clear_o   ( cipher_data_out_clear_busy ),
     .alert_o            ( cipher_alert               ),
 
-    .prd_clearing_i     ( {cipher_prd_clearing[1], cipher_prd_clearing[0]} ),
+    .prd_clearing_i     ( cipher_prd_clearing        ),
 
     .force_zero_masks_i ( force_zero_masks_q         ),
     .data_in_mask_o     ( state_mask                 ),
@@ -456,11 +421,45 @@ module aes_core
     .entropy_ack_i      ( entropy_masking_ack_i      ),
     .entropy_i          ( entropy_masking_i          ),
 
-    .state_init_i       ( {state_init[1], state_init[0]}           ),
-    .key_init_i         ( {key_init_cipher[1], key_init_cipher[0]} ),
-    .state_o            ( {state_done[1], state_done[0]}           )
+    .state_init_i       ( state_init                 ),
+    .key_init_i         ( key_init_cipher            ),
+    .state_o            ( state_done                 )
   );
+  // aes_cipher_core_syn u_aes_cipher_core (
+  //   .clk_i              ( clk_i                      ),
+  //   .rst_ni             ( rst_ni                     ),
 
+  //   .in_valid_i         ( cipher_in_valid            ),
+  //   .in_ready_o         ( cipher_in_ready            ),
+
+  //   .out_valid_o        ( cipher_out_valid           ),
+  //   .out_ready_i        ( cipher_out_ready           ),
+
+  //   .cfg_valid_i        ( ~ctrl_err_storage          ), // Used for gating assertions only.
+  //   .op_i               ( cipher_op                  ),
+  //   .key_len_i          ( key_len_q                  ),
+  //   .crypt_i            ( cipher_crypt               ),
+  //   .crypt_o            ( cipher_crypt_busy          ),
+  //   .dec_key_gen_i      ( cipher_dec_key_gen         ),
+  //   .dec_key_gen_o      ( cipher_dec_key_gen_busy    ),
+  //   .key_clear_i        ( cipher_key_clear           ),
+  //   .key_clear_o        ( cipher_key_clear_busy      ),
+  //   .data_out_clear_i   ( cipher_data_out_clear      ),
+  //   .data_out_clear_o   ( cipher_data_out_clear_busy ),
+  //   .alert_o            ( cipher_alert               ),
+
+  //   .prd_clearing_i     ( {cipher_prd_clearing[1], cipher_prd_clearing[0]} ),
+
+  //   .force_zero_masks_i ( force_zero_masks_q         ),
+  //   .data_in_mask_o     ( state_mask                 ),
+  //   .entropy_req_o      ( entropy_masking_req_o      ),
+  //   .entropy_ack_i      ( entropy_masking_ack_i      ),
+  //   .entropy_i          ( entropy_masking_i          ),
+
+  //   .state_init_i       ( {state_init[1], state_init[0]}           ),
+  //   .key_init_i         ( {key_init_cipher[1], key_init_cipher[0]} ),
+  //   .state_o            ( {state_done[1], state_done[0]}           )
+  // );
 
   if (!Masking) begin : gen_state_out_unmasked
     assign state_out = state_done[0];

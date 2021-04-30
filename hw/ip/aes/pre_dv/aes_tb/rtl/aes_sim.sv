@@ -26,29 +26,14 @@ module aes_sim import aes_pkg::*;
   logic edn_req;
 
   // Instantiate top-level
-  aes #(
-    .AES192Enable         ( AES192Enable         ),
-    .Masking              ( Masking              ),
-    .SBoxImpl             ( SBoxImpl             ),
-    .SecStartTriggerDelay ( SecStartTriggerDelay ),
-    .SecAllowForcingMasks ( SecAllowForcingMasks ),
-    .SecSkipPRNGReseeding ( SecSkipPRNGReseeding )
-  ) u_aes (
-    .clk_i,
-    .rst_ni,
-    .idle_o           (                               ),
-    .lc_escalate_en_i ( lc_ctrl_pkg::Off              ),
-    .clk_edn_i        ( clk_i                         ),
-    .rst_edn_ni       ( rst_ni                        ),
-    .edn_o            ( edn_req                       ),
-    .edn_i            ( {edn_req, 1'b1, 32'h12345678} ),
-    .tl_i,
-    .tl_o,
-    .alert_rx_i       ( alert_rx                      ),
-    .alert_tx_o       ( alert_tx                      )
-  );
-
-  //aes_syn u_aes_syn (
+  //aes #(
+  //  .AES192Enable         ( AES192Enable         ),
+  //  .Masking              ( Masking              ),
+  //  .SBoxImpl             ( SBoxImpl             ),
+  //  .SecStartTriggerDelay ( SecStartTriggerDelay ),
+  //  .SecAllowForcingMasks ( SecAllowForcingMasks ),
+  //  .SecSkipPRNGReseeding ( SecSkipPRNGReseeding )
+  //) u_aes (
   //  .clk_i,
   //  .rst_ni,
   //  .idle_o           (                               ),
@@ -62,6 +47,21 @@ module aes_sim import aes_pkg::*;
   //  .alert_rx_i       ( alert_rx                      ),
   //  .alert_tx_o       ( alert_tx                      )
   //);
+
+  aes_syn u_aes_syn (
+    .clk_i,
+    .rst_ni,
+    .idle_o           (                               ),
+    .lc_escalate_en_i ( lc_ctrl_pkg::Off              ),
+    .clk_edn_i        ( clk_i                         ),
+    .rst_edn_ni       ( rst_ni                        ),
+    .edn_o            ( edn_req                       ),
+    .edn_i            ( {edn_req, 1'b1, 32'h12345678} ),
+    .tl_i,
+    .tl_o,
+    .alert_rx_i       ( alert_rx                      ),
+    .alert_tx_o       ( alert_tx                      )
+  );
 
   // Signals for controlling model checker
   logic        start /*verilator public_flat*/;
