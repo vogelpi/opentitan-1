@@ -99,13 +99,9 @@ module aes_cipher_control import aes_pkg::*;
   aes_cipher_ctrl_e aes_cipher_ctrl_ns, aes_cipher_ctrl_cs;
 
   // Signals
-  logic [3:0] rnd_ctr_d, rnd_ctr_q;
-  logic [3:0] rnd_ctr_rem_d, rnd_ctr_rem_q;
-  logic [3:0] rnd_ctr_sum;
+  logic [3:0] round_d, round_q;
   logic [3:0] num_rounds_d, num_rounds_q;
   logic [3:0] num_rounds_regular;
-  logic       rnd_ctr_parity, rnd_ctr_parity_d, rnd_ctr_parity_q;
-  logic       rnd_ctr_err, rnd_ctr_err_sum, rnd_ctr_err_parity;
   sp2v_e      crypt_d, crypt_q;
   sp2v_e      dec_key_gen_d, dec_key_gen_q;
   logic       key_clear_d, key_clear_q;
@@ -155,9 +151,8 @@ module aes_cipher_control import aes_pkg::*;
 
     // FSM
     aes_cipher_ctrl_ns   = aes_cipher_ctrl_cs;
+    round_d              = round_q;
     num_rounds_d         = num_rounds_q;
-    rnd_ctr_d            = rnd_ctr_q;
-    rnd_ctr_rem_d        = rnd_ctr_rem_q;
     crypt_d              = crypt_q;
     dec_key_gen_d        = dec_key_gen_q;
     key_clear_d          = key_clear_q;
@@ -207,12 +202,11 @@ module aes_cipher_control import aes_pkg::*;
                                                             KEY_FULL_DEC_INIT;
             key_full_we_o  = SP2V_HIGH;
 
-            // Load num_rounds, initialize round counters.
+            // Load num_rounds, clear round
+            round_d      = '0;
             num_rounds_d = (key_len_i == AES_128) ? 4'd10 :
                            (key_len_i == AES_192) ? 4'd12 :
                                                     4'd14;
-            rnd_ctr_rem_d      = num_rounds_d;
-            rnd_ctr_d          = '0;
             aes_cipher_ctrl_ns = INIT;
 
           end else begin
@@ -251,14 +245,12 @@ module aes_cipher_control import aes_pkg::*;
             key_expand_out_ack_o = SP2V_HIGH;
             state_we_o           = (dec_key_gen_q == SP2V_LOW) ? SP2V_HIGH : SP2V_LOW;
             key_full_we_o        = SP2V_HIGH;
-            rnd_ctr_d            = rnd_ctr_q     + 4'b0001;
-            rnd_ctr_rem_d        = rnd_ctr_rem_q - 4'b0001;
+            round_d              = round_q + 4'b0001;
             aes_cipher_ctrl_ns   = ROUND;
           end
         end else begin
           state_we_o         = (dec_key_gen_q == SP2V_LOW) ? SP2V_HIGH : SP2V_LOW;
-          rnd_ctr_d          = rnd_ctr_q     + 4'b0001;
-          rnd_ctr_rem_d      = rnd_ctr_rem_q - 4'b0001;
+          round_d            = round_q + 4'b0001;
           aes_cipher_ctrl_ns = ROUND;
         end
       end
@@ -296,11 +288,10 @@ module aes_cipher_control import aes_pkg::*;
           key_full_we_o = SP2V_HIGH;
 
           // Update round
-          rnd_ctr_d     = rnd_ctr_q     + 4'b0001;
-          rnd_ctr_rem_d = rnd_ctr_rem_q - 4'b0001;
+          round_d = round_q + 4'b0001;
 
           // Are we doing the last regular round?
-          if (rnd_ctr_q == num_rounds_regular) begin
+          if (round_q == num_rounds_regular) begin
             aes_cipher_ctrl_ns = FINISH;
 
             if (dec_key_gen_q == SP2V_HIGH) begin
@@ -317,7 +308,7 @@ module aes_cipher_control import aes_pkg::*;
                 aes_cipher_ctrl_ns = IDLE;
               end
             end
-          end // rnd_ctr_q
+          end // round_q
         end // SubBytes/KeyExpand REQ/ACK
       end
 
@@ -415,8 +406,8 @@ module aes_cipher_control import aes_pkg::*;
     endcase
 
     // Unconditionally jump into the terminal error state in case a mux selector or a sparsely
-    // encoded signal becomes invalid, or in case we have detected a fault in the round counter.
-    if (mux_sel_err_i || sp_enc_err || rnd_ctr_err) begin
+    // encoded signal becomes invalid.
+    if (mux_sel_err_i || sp_enc_err) begin
       aes_cipher_ctrl_ns = ERROR;
     end
   end
@@ -437,11 +428,13 @@ module aes_cipher_control import aes_pkg::*;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : reg_fsm
     if (!rst_ni) begin
+      round_q            <= '0;
       num_rounds_q       <= '0;
       key_clear_q        <= 1'b0;
       data_out_clear_q   <= 1'b0;
       prng_reseed_done_q <= 1'b0;
     end else begin
+      round_q            <= round_d;
       num_rounds_q       <= num_rounds_d;
       key_clear_q        <= key_clear_d;
       data_out_clear_q   <= data_out_clear_d;
@@ -455,69 +448,13 @@ module aes_cipher_control import aes_pkg::*;
   // Use separate signal for key expand operation, forward round.
   assign key_expand_op_o    = (dec_key_gen_d == SP2V_HIGH ||
                                dec_key_gen_q == SP2V_HIGH) ? CIPH_FWD : op_i;
-  assign key_expand_round_o = rnd_ctr_q;
+  assign key_expand_round_o = round_q;
 
   // Let the main controller know whate we are doing.
   assign crypt_o          = crypt_q;
   assign dec_key_gen_o    = dec_key_gen_q;
   assign key_clear_o      = key_clear_q;
   assign data_out_clear_o = data_out_clear_q;
-
-  //////////////////////////////
-  // Round Counter Protection //
-  //////////////////////////////
-  // To protect the round counter against fault injection, we use two counters:
-  // - rnd_ctr_d/q counts the executed rounds. It is initialized to 0 and counts up.
-  // - rnd_ctr_rem_d/q counts the remaining rounds. It is initialized to num_rounds_q and counts
-  //   down.
-  // In addition, we use one parity bit for the rnd_ctr_d/q counter.
-  //
-  // An alert is signaled and the FSM goes into the terminal error state if
-  // i) the sum of the counters doesn't add up, i.e. rnd_ctr_q + rnd_ctr_rem_q != num_rounds_q, or
-  // ii) the parity information is incorrect.
-
-  // The following primitives are used to place size-only constraints on the
-  // flops in order to prevent optimizations on the protected round counter.
-  prim_flop #(
-    .Width(4),
-    .ResetValue('0)
-  ) u_rnd_ctr_regs (
-    .clk_i,
-    .rst_ni,
-    .d_i ( rnd_ctr_d ),
-    .q_o ( rnd_ctr_q )
-  );
-
-  prim_flop #(
-    .Width(4),
-    .ResetValue('0)
-  ) u_rnd_ctr_rem_regs (
-    .clk_i,
-    .rst_ni,
-    .d_i ( rnd_ctr_rem_d ),
-    .q_o ( rnd_ctr_rem_q )
-  );
-
-  prim_flop #(
-    .Width(1),
-    .ResetValue('0)
-  ) u_rnd_ctr_par_reg (
-    .clk_i,
-    .rst_ni,
-    .d_i ( rnd_ctr_parity_d ),
-    .q_o ( rnd_ctr_parity_q )
-  );
-
-  // Generate parity bits and sum.
-  assign rnd_ctr_parity_d = ^rnd_ctr_d;
-  assign rnd_ctr_parity   = ^rnd_ctr_q;
-  assign rnd_ctr_sum      = rnd_ctr_q + rnd_ctr_rem_q;
-
-  // Detect faults.
-  assign rnd_ctr_err_sum    = (rnd_ctr_sum != num_rounds_q)        ? 1'b1 : 1'b0;
-  assign rnd_ctr_err_parity = (rnd_ctr_parity != rnd_ctr_parity_q) ? 1'b1 : 1'b0;
-
-  assign rnd_ctr_err = rnd_ctr_err_sum | rnd_ctr_err_parity;
 
   //////////////////////////////
   // Sparsely Encoded Signals //
