@@ -64,7 +64,7 @@ To synthesize and simulate the hardware components of OpenTitan multiple EDA too
 Depending on how you interact with the OpenTitan hardware code, one of more of the following tools need to be available.
 
 * [Verilator](https://verilator.org) {{< tool_version "verilator" >}}
-* Xilinx Vivado 2018.3
+* Xilinx Vivado 2020.1
 * Synopsys VCS
 * Cadence Xcelium
 * Cadence JasperGold
